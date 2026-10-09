@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Resume Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/">Resume<span>IQ</span></a><span class="tag">SMART CAREER TOOL</span></header>
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow">AI-ASSISTED CAREER MATCHING</div>
+      <h1>Your next opportunity<br><span>starts with your resume.</span></h1>
+      <p>Compare your resume with a job description, discover matching skills, and identify skills you may want to highlight or learn.</p>
+    </section>
+    <section class="panel">
+      <form method="post" enctype="multipart/form-data">
+        <label for="resume">Upload your resume <small>PDF only · up to 5 MB</small></label>
+        <div class="upload-box">
+          <input id="resume" name="resume" type="file" accept=".pdf,application/pdf" required>
+          <span class="upload-hint">Choose a PDF resume from your device</span>
+        </div>
+        <label for="job_description">Paste the job description</label>
+        <textarea id="job_description" name="job_description" rows="7" placeholder="Paste the responsibilities and required skills from the job posting..." required>{{ request.form.get('job_description', '') }}</textarea>
+        <button type="submit">Analyze resume <span aria-hidden="true">→</span></button>
+        <p class="privacy-note">Demo project: files are processed for this request and are not saved to a database.</p>
+      </form>
+    </section>
+    {% if error %}<div class="alert" role="alert">{{ error }}</div>{% endif %}
+    {% if result %}
+    <section class="results" aria-live="polite">
+      <div class="results-heading"><div><div class="eyebrow">YOUR REPORT</div><h2>Resume match overview</h2></div><div class="score">{{ result.score }}<small>% match</small></div></div>
+      <div class="meter"><span style="width: {{ result.score }}%"></span></div>
+      <p class="disclaimer">This score is a simple keyword overlap estimate, not an assessment of your actual ability or a hiring prediction.</p>
+      <div class="grid">
+        <article class="result-card"><h3>Matched skills <b>{{ result.matched|length }}</b></h3>
+          {% if result.matched %}<div class="chips">{% for skill in result.matched %}<span class="chip good">{{ skill }}</span>{% endfor %}</div>{% else %}<p class="muted">No matching skills detected. Check the wording in both texts.</p>{% endif %}
+        </article>
+        <article class="result-card"><h3>Skills to review <b>{{ result.missing|length }}</b></h3>
+          {% if result.missing %}<div class="chips">{% for skill in result.missing %}<span class="chip missing">{{ skill }}</span>{% endfor %}</div>{% else %}<p class="muted">No missing skills detected from this keyword list.</p>{% endif %}
+        </article>
+        <article class="result-card full"><h3>Skills found in your resume</h3>
+          {% if result.resume_skills %}<div class="chips">{% for skill in result.resume_skills %}<span class="chip">{{ skill }}</span>{% endfor %}</div>{% else %}<p class="muted">No skills from the built-in keyword list were detected.</p>{% endif %}
+        </article>
+      </div>
+    </section>
+    {% endif %}
+    <footer>Built with Python + Flask · A learning project for responsible resume improvement</footer>
+  </main>
+</body>
+</html>
